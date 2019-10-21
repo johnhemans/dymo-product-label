@@ -1,4 +1,4 @@
-# pinter-app
+# Dymo Product Labeler
 
 > Application to print labels for products
 

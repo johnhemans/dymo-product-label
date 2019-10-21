@@ -1,6 +1,7 @@
 'use strict'
 
 import { app, BrowserWindow, Menu, dialog } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import fs from 'fs'
 import storage from 'electron-json-storage'
 
@@ -18,6 +19,12 @@ const winURL = process.env.NODE_ENV === 'development'
   : `file://${__dirname}/index.html`
 
 function createWindow () {
+  /**
+   * Check for Updates
+   */
+
+  autoUpdater.checkForUpdatesAndNotify()
+
   /**
    * Initial window options
    */

@@ -1,7 +1,7 @@
 {
-  "name": "printer-app",
+  "name": "dymo-product-labeler",
   "version": "0.0.1",
-  "author": "John Hemans <john.hemans@students.mq.edu.au>",
+  "author": "John Hemans",
   "description": "Application to print labels for products",
   "license": null,
   "main": "./dist/electron/main.js",
@@ -16,10 +16,11 @@
     "pack": "npm run pack:main && npm run pack:renderer",
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
-    "postinstall": "npm run lint:fix"
+    "postinstall": "npm run lint:fix",
+    "publish": "build -p always"
   },
   "build": {
-    "productName": "DYMO Product Label",
+    "productName": "DYMO Product Labeler",
     "appId": "com.example.yourapp",
     "directories": {
       "output": "build"
@@ -43,10 +44,11 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "build/icons/icon.png"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/icon.png",
+      "publish": ["github"]
     },
     "linux": {
       "icon": "build/icons"
@@ -60,6 +62,7 @@
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.3",
     "electron-json-storage": "^4.1.8",
+    "electron-updater": "^4.1.2",
     "jquery": "^3.4.1",
     "moment": "^2.24.0",
     "popper.js": "^1.16.0",
