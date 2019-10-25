@@ -1,7 +1,6 @@
 'use strict'
 
 import { app, BrowserWindow, Menu, dialog } from 'electron'
-import { autoUpdater } from 'electron-updater'
 import fs from 'fs'
 import storage from 'electron-json-storage'
 
@@ -22,11 +21,6 @@ function createWindow () {
   /**
    * Check for Updates
    */
-
-  autoUpdater.logger = require("electron-log")
-  autoUpdater.logger.transports.file.level = "info"
-
-  autoUpdater.checkForUpdatesAndNotify()
 
   /**
    * Initial window options
@@ -133,8 +127,11 @@ app.on('activate', () => {
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
  */
 
-/*
+
 import { autoUpdater } from 'electron-updater'
+
+autoUpdater.logger = require("electron-log")
+autoUpdater.logger.transports.file.level = "info"
 
 autoUpdater.on('update-downloaded', () => {
   autoUpdater.quitAndInstall()
@@ -143,4 +140,3 @@ autoUpdater.on('update-downloaded', () => {
 app.on('ready', () => {
   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
 })
- */
