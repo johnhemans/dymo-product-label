@@ -3,6 +3,7 @@
 import { app, BrowserWindow, Menu, dialog } from 'electron'
 import fs from 'fs'
 import storage from 'electron-json-storage'
+import { autoUpdater } from 'electron-updater'
 
 /**
  * Set `__static` path to static files in production
@@ -127,11 +128,8 @@ app.on('activate', () => {
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
  */
 
-
-import { autoUpdater } from 'electron-updater'
-
-autoUpdater.logger = require("electron-log")
-autoUpdater.logger.transports.file.level = "info"
+autoUpdater.logger = require('electron-log')
+autoUpdater.logger.transports.file.level = 'info'
 
 autoUpdater.on('update-downloaded', () => {
   autoUpdater.quitAndInstall()
