@@ -23,6 +23,9 @@ function createWindow () {
    * Check for Updates
    */
 
+  autoUpdater.logger = require("electron-log")
+  autoUpdater.logger.transports.file.level = "info"
+
   autoUpdater.checkForUpdatesAndNotify()
 
   /**

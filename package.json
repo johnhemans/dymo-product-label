@@ -17,7 +17,7 @@
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "postinstall": "npm run lint:fix",
-    "publish": "build -p always"
+    "gh-publish": "build --win -p always"
   },
   "build": {
     "productName": "DYMO Product Labeler",
@@ -48,7 +48,9 @@
     },
     "win": {
       "icon": "build/icons/icon.png",
-      "publish": ["github"]
+      "publish": [
+        "github"
+      ]
     },
     "linux": {
       "icon": "build/icons"
@@ -62,10 +64,12 @@
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.3",
     "electron-json-storage": "^4.1.8",
+    "electron-log": "^3.0.8",
     "electron-updater": "^4.1.2",
     "jquery": "^3.4.1",
     "moment": "^2.24.0",
     "popper.js": "^1.16.0",
+    "update-electron-app": "^1.5.0",
     "vue": "^2.6.10",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
