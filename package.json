@@ -1,6 +1,6 @@
 {
   "name": "dymo-product-labeler",
-  "version": "0.0.1",
+  "version": "1.0.2",
   "author": "John Hemans",
   "description": "Application to print labels for products",
   "license": null,
