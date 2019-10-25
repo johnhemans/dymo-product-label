@@ -3,7 +3,7 @@
     <b-navbar toggleable="lg" type="light" variant="light">
       <b-navbar-brand>Printer App</b-navbar-brand>
       <b-navbar-nav class="ml-auto">
-        <b-button v-b-modal.product-modal variant="success">Add Product</b-button>
+        <b-button v-b-modal.product-modal variant="primary">Add Product</b-button>
       </b-navbar-nav>
     </b-navbar>
 
