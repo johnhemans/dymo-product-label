@@ -3,16 +3,18 @@
     <b-navbar toggleable="lg" type="light" variant="light">
       <b-navbar-brand>Printer App</b-navbar-brand>
       <b-navbar-nav class="ml-auto">
-        <b-button v-b-modal.product-modal variant="primary">Add Product</b-button>
+        <b-button @click="showModal('productModal')" variant="danger">Add Product</b-button>
       </b-navbar-nav>
     </b-navbar>
 
     <product-modal
+      v-if="showProductModal"
       :product="selectedProduct"
       @onSubmit="handleSubmit">
     </product-modal>
 
     <print-modal
+      v-if="showPrintModal"
       :product="selectedProduct">
     </print-modal>
 
@@ -24,6 +26,12 @@
     </b-input-group>
 
     <b-table striped hover :fields="fields" :items="filteredItems">
+      <template v-slot:cell(defrost)="data">
+        {{ getDuration(data.value) }}
+      </template>
+      <template v-slot:cell(shelfLife)="data">
+        {{ getDuration(data.value) }}
+      </template>
       <template v-slot:cell(actions)="data">
         <div class="d-flex justify-content-end">
           <span ref="printBtn" title="Print Label" @click="() => printLabel(data)" class="action-btn"><font-awesome-icon :icon="['fas', 'print']"></font-awesome-icon></span>
@@ -42,6 +50,7 @@
 </template>
 
 <script>
+  import moment from 'moment'
   import storage from 'electron-json-storage'
   import ProductModal from '@/components/ProductModal.vue'
   import PrintModal from '@/components/PrintModal.vue'
@@ -57,23 +66,29 @@
         items: [],
         fields: [
           'name',
-          'shelfLife',
           { key: 'defrost', label: 'Defrost Time' },
+          'shelfLife',
           { key: 'actions', label: '' }
         ],
         search: '',
         selectedProduct: null,
-        dymo: null
+        dymo: null,
+        showProductModal: false,
+        showPrintModal: false
       }
     },
     computed: {
       filteredItems () {
         return this.items
-          .filter(x => x.name.toLowerCase().includes(this.search.toLowerCase()))
+          .filter(x => x && x.name.toLowerCase().includes(this.search.toLowerCase()))
           .map(x => {
-            return { name: x.name, shelfLife: x.shelfLife + ' hours', defrost: x.defrost + ' hours' }
+            return { id: this.items.indexOf(x), name: x.name, shelfLife: x.shelfLife, defrost: x.defrost }
           })
       }
+    },
+    created () {
+      this.$root.$on('bv::modal::hide', (event, modalId) => this.hideModal(modalId))
+      this.$root.$on('bv::modal::show', (event, modalId) => this.showModal(modalId))
     },
     mounted () {
       this.getData()
@@ -82,13 +97,35 @@
       storage.set('data', this.items)
     },
     methods: {
+      hideModal (modalId) {
+        if (modalId === 'productModal') {
+          this.showProductModal = false
+        } else {
+          this.showPrintModal = false
+        }
+      },
+      showModal (modalId) {
+        if (modalId === 'productModal') {
+          this.showProductModal = true
+        } else {
+          this.showPrintModal = true
+        }
+      },
+      getDuration (val) {
+        let result = ''
+        const days = Math.floor(moment.duration(Number(val), 'hours').asDays())
+        if (days > 0) result += `${days} ${days === 1 ? 'day' : 'days'} `
+        const hours = moment.duration(Number(val), 'hours').subtract(days, 'd').asHours()
+        if (hours > 0) result += `${hours} ${hours === 1 ? 'hour' : 'hours'}`
+        return result
+      },
       printLabel (item) {
-        this.selectedProduct = { item: this.items[item.index], index: item.index }
-        this.$root.$emit('bv::show::modal', 'print-modal', '#printBtn')
+        this.selectedProduct = JSON.parse(JSON.stringify(item.item))
+        this.showPrintModal = true
       },
       handleSubmit (data) {
         if (this.selectedProduct) {
-          this.items[this.selectedProduct.index] = data
+          this.items.splice(this.selectedProduct.id, 1, data)
         } else {
           this.items.push(data)
         }
@@ -101,23 +138,24 @@
       getData () {
         storage.get('data.json', (err, data) => {
           if (err) throw err
-          let items = JSON.parse(data)
-          if (!items) {
-            items = data
+          if (data && Array.isArray(data)) {
+            this.items = data
           }
-          this.items = items
         })
       },
       saveData () {
-        storage.set('data', this.items)
-        this.getData()
+        storage.set('data', this.items, (err) => {
+          if (err) throw err
+          this.getData()
+        })
       },
       removeItem (item) {
-        this.items.splice(item.index, 1)
+        this.items = this.items.filter((x, index) => item.item.id !== index)
+        this.saveData()
       },
       editItem (item) {
-        this.selectedProduct = { item: this.items[item.index], index: item.index }
-        this.$root.$emit('bv::show::modal', 'product-modal', '#editBtn')
+        this.selectedProduct = JSON.parse(JSON.stringify(item.item))
+        this.showProductModal = true
       }
     }
   }

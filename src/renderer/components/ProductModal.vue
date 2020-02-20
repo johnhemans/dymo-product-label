@@ -1,7 +1,8 @@
 <template>
     <b-modal
+      id="productModal"
       ref="modal"
-      id="product-modal"
+      :visible="true"
       :title="modalLabel"
       @ok="handleSubmit"
       >
@@ -11,7 +12,7 @@
       <form ref="form" @submit.stop.prevent="handleSubmit">
         <b-form-group
           id="name-group"
-          label="Product Name:"
+          label="Product Name"
           label-for="name-input">
           <b-form-input
             id="name-input"
@@ -21,30 +22,51 @@
             placeholder="e.g. Ham"></b-form-input>
         </b-form-group>
         <b-form-group
-          id="shelfLife-group"
-          label="Shelf Life (hours):"
-          label-for="shelfLife-input">
-          <b-form-input
-            id="shelfLife-input"
-            v-model.trim="form.shelfLife"
-            type="number"
-            required
-            placeholder="e.g. 48"></b-form-input>
+          id="defrost-group"
+          label="Defrost"
+          label-for="defrost-input">
+          <b-row>
+            <b-col>
+              <b-form-input
+                id="defrost-input"
+                v-model.trim="form.defrost"
+                type="number"
+                required
+                placeholder="e.g. 12" />
+            </b-col>
+            <b-col cols="4">
+              <b-form-select
+                v-model="defrostType"
+                :options="timeOptions"
+                @change="onDefrostTypeChange" />
+            </b-col>
+          </b-row>
         </b-form-group>
         <b-form-group
-          id="defrost-group"
-          label="Defrost (hours):"
-          label-for="defrost-input">
-          <b-form-input
-            id="defrost-input"
-            v-model.trim="form.defrost"
-            type="number"
-            required
-            placeholder="e.g. 12"></b-form-input>
+          id="shelfLife-group"
+          label="Shelf Life"
+          label-for="shelfLife-input">
+          <b-row>
+            <b-col>
+              <b-form-input
+                id="shelfLife-input"
+                v-model.trim="form.shelfLife"
+                type="number"
+                required
+                placeholder="e.g. 48"></b-form-input>
+            </b-col>
+            <b-col cols="4">
+              <b-form-select
+                v-model="shelfLifeType"
+                :options="timeOptions"
+                @change="onShelfLifeTypeChange"
+              />
+            </b-col>
+          </b-row>
         </b-form-group>
       </form>
-      <template v-slot:modal-footer="{ ok, cancel }">
-        <b-button variant="danger" @click="hideModal">
+      <template v-slot:modal-footer="{ cancel }">
+        <b-button variant="danger" @click="cancel()">
           Cancel
         </b-button>
         <b-button variant="success" @click="handleSubmit">
@@ -55,6 +77,8 @@
 </template>
 
 <script>
+import moment from 'moment'
+
 export default {
   name: 'product-modal',
   props: {
@@ -73,42 +97,52 @@ export default {
         name: '',
         shelfLife: '',
         defrost: ''
-      }
+      },
+      shelfLifeType: 'Hours',
+      defrostType: 'Hours',
+      timeOptions: [
+        'Hours',
+        'Days'
+      ]
     }
   },
   computed: {
     modalLabel () {
-      return this.modalData ? 'Edit Item' : 'Add Item'
+      return this.product ? 'Edit Item' : 'Add Item'
     },
     successBtnLabel () {
-      return this.modalData ? 'Save' : 'Create'
+      return this.product ? 'Save' : 'Create'
     }
   },
-  watch: {
-    product (data) {
-      if (data) {
-        this.form = { ...data.item }
-      }
+  mounted () {
+    if (this.product) {
+      this.form = JSON.parse(JSON.stringify(this.product))
     }
-  },
-  created () {
-    this.$root.$on('bv::modal::hide', (event, modalId) => {
-      this.hideModal()
-    })
   },
   methods: {
     handleSubmit () {
-      this.$emit('onSubmit', { ...this.form })
-      this.hideModal()
-    },
-    hideModal () {
-      this.clearForm()
+      if (this.shelfLifeType === 'Days') {
+        this.form.shelfLife = moment.duration(Number(this.form.shelfLife), 'days').asHours()
+      }
+      if (this.defrostType === 'Days') {
+        this.form.defrost = moment.duration(Number(this.form.defrost), 'days').asHours()
+      }
+      this.$emit('onSubmit', JSON.parse(JSON.stringify(this.form)))
       this.$refs.modal.hide()
     },
-    clearForm () {
-      Object.keys(this.form).forEach(key => {
-        this.form[key] = ''
-      })
+    onShelfLifeTypeChange (type) {
+      if (type === 'Days') {
+        this.form.shelfLife = moment.duration(Number(this.form.shelfLife), 'hours').asDays()
+      } else {
+        this.form.shelfLife = moment.duration(Number(this.form.shelfLife), 'days').asHours()
+      }
+    },
+    onDefrostTypeChange (type) {
+      if (type === 'Days') {
+        this.form.defrost = moment.duration(Number(this.form.defrost), 'hours').asDays()
+      } else {
+        this.form.defrost = moment.duration(Number(this.form.defrost), 'days').asHours()
+      }
     }
   }
 }

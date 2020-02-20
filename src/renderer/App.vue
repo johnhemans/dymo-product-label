@@ -8,12 +8,12 @@
   export default {
     name: 'printer-app',
     mounted () {
-      this.createDymoScript()
+      this.injectDymoScript()
     },
     methods: {
-      createDymoScript () {
+      injectDymoScript () {
         const dymoScript = document.createElement('script')
-        dymoScript.setAttribute('src', 'http://labelwriter.com/software/dls/sdk/js/DYMO.Label.Framework.latest.js')
+        dymoScript.setAttribute('src', 'http://labelwriter.com/software/dls/sdk/js/dymo.connect.framework.js')
         document.head.appendChild(dymoScript)
       }
     }
