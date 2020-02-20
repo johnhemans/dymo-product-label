@@ -83,6 +83,9 @@ function loadData () {
   if (result) {
     fs.readFile(result[0], 'utf8', (err, data) => {
       if (err) throw err
+      if (data && (typeof data === 'string' || data instanceof String)) {
+        data = JSON.parse(data)
+      }
       storage.set('data.json', data)
       mainWindow.reload()
     })

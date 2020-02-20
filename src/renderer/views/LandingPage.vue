@@ -138,6 +138,11 @@
       getData () {
         storage.get('data.json', (err, data) => {
           if (err) throw err
+
+          if (data && (typeof data === 'string' || data instanceof String)) {
+            data = JSON.parse(data)
+          }
+
           if (data && Array.isArray(data)) {
             this.items = data
           }
